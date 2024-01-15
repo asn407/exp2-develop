@@ -1,1 +1,4 @@
-arecord -d 'seconds time' 'name'.wav
+arecord -d 'seconds time' 'namei.wav
+===
+settings:
+alsamixer
