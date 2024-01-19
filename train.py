@@ -1,3 +1,13 @@
+# 学習データ数
+train_nums = [200, 200, 120, 120]
+# ラベル
+labels = ['locking', 'silent', 'checking', 'opening']
+
+X_train = []
+y_train = []
+
+# ライブラリのインポート
+print('importing librarys...')
 import cv2
 import glob
 import pandas as pd
@@ -5,55 +15,38 @@ import numpy as np
 from sklearn import svm
 import pickle
 
-# 学習データ
-N = 200
+# 読み込み開始
+print('please wait for a moment...')
+for i in range(len(train_nums)):
 
-labels0 = []
-labels1 = []
-images0 = []
-images1 = []
+    # locking -> silent -> checking -> opening
+    # の順番で読み込みを行う
 
-for i in range(N):
-    # 学習しやすいよう加工
-    img_0 = cv2.imread('./data_png/locking/'+str(i+1)+'.png')
-    img_1 = cv2.imread('./data_png/no_locking/'+str(i+1)+'.png')
-    
-    img_0 = img_0.flatten()
-    img_1 = img_1.flatten()
+    print('start '+labels[i])
 
-    # 画像をリストに追加
-    images0.append(img_0)
-    images1.append(img_1)
-    labels0.append('locking')
-    labels1.append('no_locking')
-    print(str(i) +': is finished')
+    for j in range(train_nums[i]):
 
-labels = labels0 + labels1
-images = images0 + images1
+        # 画像の読み込み
+        img = cv2.imread('./data_png/'+labels[i]+'/'+str(j+1)+'.png')
+
+        # 学習しやすいよう画像を加工
+        img = cv2.resize(img, (480, 480))
+        img = img.flatten()
+
+        # 学習用変数に格納
+        X_train.append(img)
+        y_train.append(labels[i])
+
+        print(str(j+1)+' / '+str(train_nums[i])+' is finished : '+labels[i])
     
 # 学習モデルを作成
+print('making model...')
 model = svm.SVC(decision_function_shape='ovr')
-print('svm.SVC')
-model.fit(images, labels)
-print('fit')
-print(model.score(images, labels))
+model.fit(X_train, y_train)
+
+# コサイン類似度
 print('model.score')
+print(model.score(X_train, y_train))
 
-# pickle.dump(model, open('model.sav', 'wb'))
-
-# テスト
-for i in range(50):
-    print(201+i)
-    img = cv2.imread('./data_png/locking/'+str(201+i)+'.png')
-    img = cv2.resize(img, (64, 64))
-    # img = img.flatten()
-    print(str(201+i)+" : 判定結果"+str(model.predict([img])))
-
-print('=================')
-
-for i in range(50):
-    print(str(i+1))
-    img = cv2.imread('./data_png/no_locking/'+str(201+i)+'.png')
-    img = cv2.resize(img, (64, 64))
-    # img = img.flatten()
-    print(str(201+i)+" : 判定結果"+str(model.predict([img])))
+# 作成されたモデルを保存
+pickle.dump(model, open('model.sav', 'wb'))
