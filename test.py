@@ -10,7 +10,6 @@ result = []
 # ライブラリのインポート
 print('importing librarys...')
 import cv2
-import glob
 from sklearn import svm
 import pickle
 
@@ -21,23 +20,27 @@ model = pickle.load(open('model.sav', 'rb'))
 # 測定開始
 print('please wait for a moment...')
 for i in range(len(test_nums)):
+
+    # 前処理
+    y_test = labels[i]
+    result.append(0)
+
     for j in range(test_nums[i]):
 
         # データの用意
         X_test = cv2.imread('./data_png/'+labels[i]+'/'+str(train_nums[i]+j+1)+'.png')
         X_test = cv2.resize(X_test, (480, 480))
         X_test = X_test.flatten()
-        y_test = labels[i]
-        result.append(0)
 
         # 予測
-        output = model.predict([X_test])
+        pred = model.predict([X_test])
 
         # 正解の場合はスコア加算
-        if output == y_test:
+        if pred == y_test:
             result[i] += 1
 
-        print(str(j+1)+' / '+str(test_nums[i])+' is finished : '+str(output)+' / '+labels[i])
+        # 進行具合を表示
+        print(str(j+1)+' / '+str(test_nums[i])+' is finished : '+str(pred)+' / '+labels[i])
 
 # 結果発表
 total_result = 0
@@ -49,6 +52,6 @@ for i in range(len(labels)):
     print(labels[i]+' : '+str(rate)+' % ('+str(result[i])+'/'+str(test_nums[i])+')')
     total_result += result[i]
     total_test += test_nums[i]
-
 rate = total_result / total_test * 100
 print('total : '+str(rate)+' % ('+str(total_result)+'/'+str(total_test)+')')
+print('==========')

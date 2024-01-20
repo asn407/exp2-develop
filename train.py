@@ -9,9 +9,6 @@ y_train = []
 # ライブラリのインポート
 print('importing librarys...')
 import cv2
-import glob
-import pandas as pd
-import numpy as np
 from sklearn import svm
 import pickle
 
@@ -29,7 +26,7 @@ for i in range(len(train_nums)):
         # 画像の読み込み
         img = cv2.imread('./data_png/'+labels[i]+'/'+str(j+1)+'.png')
 
-        # 学習しやすいよう画像を加工
+        # 学習可能サイズに加工
         img = cv2.resize(img, (480, 480))
         img = img.flatten()
 
@@ -37,6 +34,7 @@ for i in range(len(train_nums)):
         X_train.append(img)
         y_train.append(labels[i])
 
+        # 進行具合を表示
         print(str(j+1)+' / '+str(train_nums[i])+' is finished : '+labels[i])
     
 # 学習モデルを作成
